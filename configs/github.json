@@ -1,0 +1,46 @@
+{
+  "name": "github",
+  "displayName": "GitHub",
+  "description": "GitHub API操作工具",
+  "version": "1.0.0",
+  "author": "ModelContextProtocol",
+  "homepage": "https://github.com/modelcontextprotocol/servers",
+  "license": "MIT",
+  "install": {
+    "type": "npx",
+    "package": "@modelcontextprotocol/server-github"
+  },
+  "server": {
+    "type": "stdio",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@modelcontextprotocol/server-github"
+    ]
+  },
+  "tools": [
+    {
+      "name": "search_repositories",
+      "description": "搜索代码仓库"
+    },
+    {
+      "name": "create_issue",
+      "description": "创建Issue"
+    },
+    {
+      "name": "create_pull_request",
+      "description": "创建Pull Request"
+    },
+    {
+      "name": "fork_repository",
+      "description": "Fork仓库"
+    }
+  ],
+  "env": {
+    "GITHUB_PERSONAL_ACCESS_TOKEN": {
+      "description": "GitHub个人访问令牌",
+      "required": true
+    }
+  },
+  "configurable": {}
+}

@@ -1,0 +1,29 @@
+{
+  "name": "fetch",
+  "displayName": "网页获取",
+  "description": "获取网页内容，支持HTML转Markdown",
+  "version": "1.0.0",
+  "author": "ModelContextProtocol",
+  "homepage": "https://github.com/modelcontextprotocol/servers",
+  "license": "MIT",
+  "install": {
+    "type": "npx",
+    "package": "@modelcontextprotocol/server-fetch"
+  },
+  "server": {
+    "type": "stdio",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@modelcontextprotocol/server-fetch"
+    ]
+  },
+  "tools": [
+    {
+      "name": "fetch",
+      "description": "获取URL内容"
+    }
+  ],
+  "env": {},
+  "configurable": {}
+}

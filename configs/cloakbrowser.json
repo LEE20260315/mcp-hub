@@ -1,0 +1,81 @@
+{
+  "name": "cloakbrowser",
+  "displayName": "CloakBrowser",
+  "description": "隐形浏览器自动化工具，绕过所有机器人检测",
+  "version": "0.3.27",
+  "author": "CloakHQ",
+  "homepage": "https://github.com/CloakHQ/CloakBrowser",
+  "license": "MIT",
+  "install": {
+    "type": "pip",
+    "package": "cloakbrowser",
+    "version": ">=0.3.0"
+  },
+  "server": {
+    "type": "stdio",
+    "command": "python",
+    "args": [
+      "-m",
+      "cloakbrowser_mcp"
+    ]
+  },
+  "tools": [
+    {
+      "name": "browser_launch",
+      "description": "启动CloakBrowser浏览器实例"
+    },
+    {
+      "name": "browser_close",
+      "description": "关闭浏览器实例"
+    },
+    {
+      "name": "page_goto",
+      "description": "导航到指定URL"
+    },
+    {
+      "name": "page_screenshot",
+      "description": "截取页面屏幕"
+    },
+    {
+      "name": "page_click",
+      "description": "点击页面元素"
+    },
+    {
+      "name": "page_fill",
+      "description": "在输入框填写文本"
+    },
+    {
+      "name": "page_evaluate",
+      "description": "执行JavaScript代码"
+    },
+    {
+      "name": "page_content",
+      "description": "获取页面HTML内容"
+    },
+    {
+      "name": "page_text",
+      "description": "获取页面纯文本"
+    },
+    {
+      "name": "page_title",
+      "description": "获取页面标题"
+    }
+  ],
+  "env": {},
+  "configurable": {
+    "headless": {
+      "type": "boolean",
+      "default": true,
+      "description": "是否使用无头模式"
+    },
+    "proxy": {
+      "type": "string",
+      "description": "代理地址"
+    },
+    "humanize": {
+      "type": "boolean",
+      "default": false,
+      "description": "启用人类行为模拟"
+    }
+  }
+}

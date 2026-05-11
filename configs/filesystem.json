@@ -1,0 +1,49 @@
+{
+  "name": "filesystem",
+  "displayName": "文件系统",
+  "description": "安全的文件系统操作工具",
+  "version": "1.0.0",
+  "author": "ModelContextProtocol",
+  "homepage": "https://github.com/modelcontextprotocol/servers",
+  "license": "MIT",
+  "install": {
+    "type": "npx",
+    "package": "@modelcontextprotocol/server-filesystem"
+  },
+  "server": {
+    "type": "stdio",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@modelcontextprotocol/server-filesystem",
+      "{{allowed_directories}}"
+    ]
+  },
+  "tools": [
+    {
+      "name": "read_file",
+      "description": "读取文件内容"
+    },
+    {
+      "name": "write_file",
+      "description": "写入文件"
+    },
+    {
+      "name": "list_directory",
+      "description": "列出目录内容"
+    },
+    {
+      "name": "create_directory",
+      "description": "创建目录"
+    }
+  ],
+  "env": {},
+  "configurable": {
+    "allowed_directories": {
+      "type": "array",
+      "items": "string",
+      "description": "允许访问的目录列表",
+      "required": true
+    }
+  }
+}
