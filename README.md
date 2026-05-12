@@ -44,18 +44,18 @@
 
 | 號 | 名 | 用 | 棲 |
 |---|---|---|---|
-| 〇一 | Filesystem          | 文件讀寫           | Node |
-| 〇二 | Desktop Commander   | 終端與進程         | Node |
-| 〇三 | Sequential Thinking | 鏈式推理           | Node |
-| 〇四 | Memory              | 知識圖譜之記       | Node |
-| 〇五 | context7            | 群書之註           | Node |
-| 〇六 | Puppeteer           | 無頭瀏覽           | Node |
-| 〇七 | DuckDuckGo          | 隱蹤而搜           | uvx  |
-| 〇八 | lark-mcp            | 飛書之郵           | Node |
-| 〇九 | Excel               | 表簿之理           | Node |
-| 一〇 | Chrome DevTools     | 瀏覽之診           | Node |
-| 一一 | 發現報告            | 報告生成           | uvx  |
-| 一二 | Playwright          | 跨瀏覽器之試       | Node |
+| 〇一 | Filesystem          | 遍覽群籍，增刪改移，無遠弗屆     | Node |
+| 〇二 | Desktop Commander   | 驅策終端，運籌帷幄，令行禁止     | Node |
+| 〇三 | Sequential Thinking | 層層遞進，抽絲剝繭，洞若觀火     | Node |
+| 〇四 | Memory              | 博聞強識，歷歷在目，溫故知新     | Node |
+| 〇五 | context7            | 博覽群書，提要鉤玄，旁徵博引     | Node |
+| 〇六 | Puppeteer           | 駕馭無頭，遊刃有餘，無形之刃     | Node |
+| 〇七 | DuckDuckGo          | 隱姓埋名，搜奇索隱，無跡可尋     | uvx  |
+| 〇八 | lark-mcp            | 飛書傳信，往來無礙，瞬息千里     | Node |
+| 〇九 | Excel               | 縱橫表簿，條分縷析，井然有序     | Node |
+| 一〇 | Chrome DevTools     | 洞察秋毫，診脈開方，藥到病除     | Node |
+| 一一 | 發現報告            | 運筆成章，條陳利弊，擲地有聲     | uvx  |
+| 一二 | Playwright          | 跨瀏覽器試，百戰不殆，穩如磐石   | Node |
 
 <br>
 
