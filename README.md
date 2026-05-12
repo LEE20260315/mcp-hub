@@ -1,5 +1,5 @@
 <div align="center"><br><br>
-<img src="docs/assets/banner-xicheng.png" alt="墨道具箱" width="720"/>
+<img src="https://raw.githubusercontent.com/LEE20260315/mcp-hub/main/docs/assets/banner-xicheng.jpg" alt="墨道具箱" width="720"/>
 <br><br>
 
 # 墨 道 具 箱
