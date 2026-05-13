@@ -6,11 +6,6 @@
 <sub>M C P &nbsp;·&nbsp; H U B</sub>
 <br>
 
-<sub>― 靜謐而文，案頭之器 ―</sub>
-
-<sub>凡十二器，藏於一函；一令既出，諸具皆備。</sub>
-<br>
-
 ![](https://img.shields.io/badge/license-MIT-141414?style=flat-square)
 ![](https://img.shields.io/badge/servers-12-141414?style=flat-square)
 ![](https://img.shields.io/badge/clients-5-141414?style=flat-square)
