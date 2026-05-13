@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-  <rect x="20" y="20" width="216" height="216" rx="40"
-        fill="none" stroke="#9C2A2A" stroke-width="8"
-        transform="rotate(-3 128 128)"/>
-  <text x="128" y="110" text-anchor="middle"
-        font-family="serif" font-size="72" font-weight="700"
-        fill="#9C2A2A" transform="rotate(-3 128 128)" font-style="italic">西城</text>
-  <text x="128" y="195" text-anchor="middle"
-        font-family="serif" font-size="72" font-weight="700"
-        fill="#9C2A2A" transform="rotate(-3 128 128)" font-style="italic">閒人</text>
+  <rect x="30" y="30" width="196" height="196" rx="6" fill="none" stroke="#9C2A2A" stroke-width="3" transform="rotate(-3 128 128)"/>
+  <!-- 右上: 西 -->
+  <text x="165" y="100" text-anchor="middle" font-family="serif" font-size="48" font-weight="700" fill="#9C2A2A" transform="rotate(-3 128 128)">西</text>
+  <!-- 右下: 城 -->
+  <text x="165" y="175" text-anchor="middle" font-family="serif" font-size="48" font-weight="700" fill="#9C2A2A" transform="rotate(-3 128 128)">城</text>
+  <!-- 左上: 閒 -->
+  <text x="91" y="100" text-anchor="middle" font-family="serif" font-size="48" font-weight="700" fill="#9C2A2A" transform="rotate(-3 128 128)">閒</text>
+  <!-- 左下: 人 -->
+  <text x="91" y="175" text-anchor="middle" font-family="serif" font-size="48" font-weight="700" fill="#9C2A2A" transform="rotate(-3 128 128)">人</text>
 </svg>
