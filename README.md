@@ -151,7 +151,7 @@ LARK_APP_SECRET=xxxxxxxx
 <div align="center">
 <img src="https://raw.githubusercontent.com/LEE20260315/mcp-hub/main/docs/assets/seal-xicheng.png" alt="西城閒人" width="64"/>
 <br>
-<sub>紙以承墨，墨以載意，意以馭器。</sub><br>
+<sub>紙承墨，墨載意，意馭器</sub><br>
 <sub>西城閒人 · 識</sub><br>
 <sub>MIT © 2026 ・ LEE20260315</sub>
 </div>
