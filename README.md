@@ -22,7 +22,7 @@
 
 <br><br>
 
-<img src="https://raw.githubusercontent.com/LEE20260315/mcp-hub/main/docs/assets/seal-xicheng.png" alt="西城閒人" width="72"/>
+<img src="https://raw.githubusercontent.com/LEE20260315/mcp-hub/main/docs/assets/seal-xicheng.svg" alt="西城閒人" width="72"/>
 
 <br></div>
 
@@ -149,7 +149,7 @@ LARK_APP_SECRET=xxxxxxxx
 ---
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/LEE20260315/mcp-hub/main/docs/assets/seal-xicheng.png" alt="西城閒人" width="64"/>
+<img src="https://raw.githubusercontent.com/LEE20260315/mcp-hub/main/docs/assets/seal-xicheng.svg" alt="西城閒人" width="64"/>
 <br>
 <sub>紙以承墨，墨以載意，意以馭器。</sub><br>
 <sub>西城閒人 · 識</sub><br>
