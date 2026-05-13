@@ -152,7 +152,7 @@ LARK_APP_SECRET=xxxxxxxx
 <img src="https://raw.githubusercontent.com/LEE20260315/mcp-hub/main/docs/assets/seal-xicheng.png" alt="西城閒人" width="64"/>
 <br>
 <sub>紙承墨，墨載意，意馭器</sub><br>
-<sub>纸承墨，墨载意，意驭器 · Paper receives ink, ink carries meaning, meaning commands the instrument</sub><br>
+<sub>(Paper receives ink, ink carries meaning, meaning commands the instrument)</sub><br>
 <sub>西城閒人 · 識</sub><br>
 <sub>MIT © 2026 ・ LEE20260315</sub>
 </div>
