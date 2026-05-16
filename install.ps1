@@ -4,7 +4,8 @@
 param(
     [string]$Client = "all",
     [string]$LarkAppId = "",
-    [string]$LarkAppSecret = ""
+    [string]$LarkAppSecret = "",
+    [string]$OpenHumanJwtToken = ""
 )
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -52,6 +53,15 @@ else {
     Write-Host "  [INFO] Lark 凭证未提供，将保留占位符。可通过 -LarkAppId 和 -LarkAppSecret 参数配置" -ForegroundColor Yellow
 }
 
+# 替换 OpenHuman 环境变量
+if ($OpenHumanJwtToken) {
+    $config.mcpServers.'OpenHuman'.env.OPENHUMAN_JWT_TOKEN = $OpenHumanJwtToken
+    Write-Host "  [OK] OpenHuman 凭证已配置" -ForegroundColor Green
+}
+else {
+    Write-Host "  [INFO] OpenHuman 凭证未提供，将保留占位符。可通过 -OpenHumanJwtToken 参数配置" -ForegroundColor Yellow
+}
+
 $configJson = $config | ConvertTo-Json -Depth 10
 
 # 安装到各客户端
@@ -60,12 +70,12 @@ Write-Host "[3/4] 安装到 AI Agent 客户端..." -ForegroundColor Yellow
 
 function Install-McpConfig {
     param([string]$TargetPath, [string]$ClientName)
-    
+
     $TargetDir = Split-Path -Parent $TargetPath
     if (-not (Test-Path $TargetDir)) {
         New-Item -ItemType Directory -Path $TargetDir -Force | Out-Null
     }
-    
+
     $configJson | Set-Content -Path $TargetPath -Force
     Write-Host "  [OK] $ClientName -> $TargetPath" -ForegroundColor Green
 }
@@ -109,5 +119,6 @@ Write-Host "  9. Excel               - Excel 文件处理"
 Write-Host "  10. Chrome DevTools    - Chrome 开发者工具"
 Write-Host "  11. 发现报告            - 发现报告"
 Write-Host "  12. Playwright         - 浏览器自动化测试"
+Write-Host "  13. OpenHuman           - 个人AI记忆与集成"
 Write-Host ""
 Write-Host "重启你的 AI Agent 客户端即可使用!" -ForegroundColor Green
