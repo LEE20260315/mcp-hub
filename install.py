@@ -7,7 +7,9 @@ MCP Hub 一键安装脚本
     python install.py                    # 安装所有MCP
     python install.py cloakbrowser       # 安装指定MCP
     python install.py --list             # 列出可用MCP
+    python install.py --client all       # 安装到所有客户端（默认）
     python install.py --client claude    # 指定客户端配置
+
 """
 
 import argparse
@@ -29,14 +31,27 @@ CLIENT_CONFIGS = {
     "claude": {
         "darwin": Path.home() / "Library/Application Support/Claude/claude_desktop_config.json",
         "win32": Path(os.environ.get("APPDATA", "")) / "Claude/claude_desktop_config.json",
+        "linux": Path.home() / ".config/Claude/claude_desktop_config.json",
     },
     "cursor": {
         "darwin": Path.home() / ".cursor/mcp.json",
         "win32": Path(os.environ.get("APPDATA", "")) / "Cursor/mcp.json",
+        "linux": Path.home() / ".cursor/mcp.json",
     },
     "windsurf": {
         "darwin": Path.home() / ".windsurf/mcp.json",
         "win32": Path(os.environ.get("APPDATA", "")) / "Windsurf/mcp.json",
+        "linux": Path.home() / ".windsurf/mcp.json",
+    },
+    "trae": {
+        "darwin": Path.home() / "Library/Application Support/Trae CN/User/mcp.json",
+        "win32": Path(os.environ.get("APPDATA", "")) / "Trae CN/User/mcp.json",
+        "linux": Path.home() / ".config/Trae CN/User/mcp.json",
+    },
+    "vscode": {
+        "darwin": Path.home() / "Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json",
+        "win32": Path(os.environ.get("APPDATA", "")) / "Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json",
+        "linux": Path.home() / ".config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json",
     },
 }
 
@@ -57,7 +72,7 @@ def load_mcp_config(name: str) -> Optional[Dict]:
     config_file = CONFIGS_DIR / f"{name}.json"
     if not config_file.exists():
         return None
-    
+
     with open(config_file, "r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -77,31 +92,28 @@ def install_mcp_package(config: Dict) -> bool:
     install_type = install_config.get("type", "")
     package = install_config.get("package", "")
     version = install_config.get("version", "")
-    
+
     if not package:
         print(f"  ⚠️  {config['name']}: 未配置安装包")
         return False
-    
+
     try:
         if install_type == "pip":
-            # Python pip安装
             cmd = [sys.executable, "-m", "pip", "install", package]
             if version:
                 cmd[-1] = f"{package}{version}"
             print(f"  📦 pip install {cmd[-1]}...")
             subprocess.run(cmd, check=True, capture_output=True)
             return True
-            
+
         elif install_type == "npx":
-            # Node.js npx安装
             print(f"  📦 npx安装 {package}...")
-            # npx不需要预安装，运行时自动下载
             return True
-            
+
         else:
             print(f"  ⚠️  {config['name']}: 未知的安装类型 {install_type}")
             return False
-            
+
     except subprocess.CalledProcessError as e:
         print(f"  ❌ {config['name']}: 安装失败 - {e}")
         return False
@@ -110,22 +122,19 @@ def install_mcp_package(config: Dict) -> bool:
 def generate_mcp_server_config(config: Dict, custom_args: Dict = None) -> Dict:
     """生成MCP服务器配置"""
     server_config = config.get("server", {}).copy()
-    
-    # 处理模板变量
+
     args = server_config.get("args", [])
     processed_args = []
     for arg in args:
         if isinstance(arg, str) and "{{" in arg and "}}" in arg:
-            # 模板变量，需要用户提供
             var_name = arg.strip("{} ")
             if custom_args and var_name in custom_args:
                 processed_args.append(custom_args[var_name])
             else:
-                # 跳过模板变量参数
                 continue
         else:
             processed_args.append(arg)
-    
+
     server_config["args"] = processed_args
     return server_config
 
@@ -135,12 +144,12 @@ def get_client_config_path(client: str) -> Optional[Path]:
     system = get_system()
     if client not in CLIENT_CONFIGS:
         return None
-    
+
     config_paths = CLIENT_CONFIGS[client]
     if system not in config_paths:
         print(f"  ⚠️  不支持的操作系统: {system}")
         return None
-    
+
     return config_paths[system]
 
 
@@ -149,14 +158,13 @@ def load_client_config(client: str) -> Dict:
     config_path = get_client_config_path(client)
     if not config_path:
         return {}
-    
+
     if config_path.exists():
         try:
             with open(config_path, "r", encoding="utf-8") as f:
                 return json.load(f)
         except (json.JSONDecodeError, IOError):
             return {}
-    
     return {}
 
 
@@ -165,10 +173,9 @@ def save_client_config(client: str, config: Dict) -> bool:
     config_path = get_client_config_path(client)
     if not config_path:
         return False
-    
-    # 确保目录存在
+
     config_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     try:
         with open(config_path, "w", encoding="utf-8") as f:
             json.dump(config, f, indent=2, ensure_ascii=False)
@@ -178,65 +185,68 @@ def save_client_config(client: str, config: Dict) -> bool:
         return False
 
 
-def install_mcp(name: str, client: str = "claude", custom_args: Dict = None) -> bool:
+def install_mcp(name: str, client: str = "all", custom_args: Dict = None) -> bool:
     """安装单个MCP"""
     print(f"\n🔧 安装 MCP: {name}")
-    
-    # 加载配置
+
     config = load_mcp_config(name)
     if not config:
         print(f"  ❌ 未找到MCP配置: {name}")
         return False
-    
+
     display_name = config.get("displayName", name)
     print(f"  📋 {display_name}: {config.get('description', '')}")
-    
-    # 安装包
+
     if not install_mcp_package(config):
         return False
-    
-    # 生成服务器配置
+
     server_config = generate_mcp_server_config(config, custom_args)
-    
-    # 加载现有客户端配置
-    client_config = load_client_config(client)
-    
-    # 添加/更新MCP配置
-    if "mcpServers" not in client_config:
-        client_config["mcpServers"] = {}
-    
-    client_config["mcpServers"][name] = server_config
-    
-    # 保存配置
-    if save_client_config(client, client_config):
-        print(f"  ✅ {display_name} 安装成功")
-        print(f"  📁 配置已保存到: {get_client_config_path(client)}")
-        return True
+
+    if client == "all":
+        clients_to_install = list(CLIENT_CONFIGS.keys())
     else:
-        print(f"  ❌ {display_name} 配置保存失败")
-        return False
+        clients_to_install = [client]
+
+    success = False
+    for target_client in clients_to_install:
+        client_config = load_client_config(target_client)
+
+        if "mcpServers" not in client_config:
+            client_config["mcpServers"] = {}
+        client_config["mcpServers"][name] = server_config
+
+        if save_client_config(target_client, client_config):
+            print(f"  ✅ {display_name} -> {target_client}")
+            success = True
+        else:
+            print(f"  ❌ {display_name} -> {target_client} 失败")
+
+    return success
 
 
-def install_all(client: str = "claude") -> None:
+def install_all(client: str = "all") -> None:
     """安装所有可用的MCP"""
     available = list_available_mcps()
-    
+
     if not available:
         print("❌ 没有找到可用的MCP配置")
         return
-    
-    print(f"\n🚀 开始安装 {len(available)} 个MCP 到 {client}")
+
+    if client == "all":
+        print(f"\n🚀 开始安装 {len(available)} 个MCP 到所有客户端")
+    else:
+        print(f"\n🚀 开始安装 {len(available)} 个MCP 到 {client}")
     print(f"   可用MCP: {', '.join(available)}")
-    
+
     success_count = 0
     for mcp_name in available:
         if install_mcp(mcp_name, client):
             success_count += 1
-    
+
     print(f"\n✨ 安装完成: {success_count}/{len(available)} 个MCP安装成功")
-    
+
     if success_count > 0:
-        print(f"\n💡 请重启 {client} 以加载新的MCP配置")
+        print(f"\n💡 请重启 AI Agent 客户端以加载新的MCP配置")
 
 
 def show_mcp_info(name: str) -> None:
@@ -245,26 +255,25 @@ def show_mcp_info(name: str) -> None:
     if not config:
         print(f"❌ 未找到MCP: {name}")
         return
-    
+
     print(f"\n📋 MCP: {config.get('displayName', name)}")
     print(f"   名称: {name}")
     print(f"   描述: {config.get('description', 'N/A')}")
     print(f"   版本: {config.get('version', 'N/A')}")
     print(f"   作者: {config.get('author', 'N/A')}")
     print(f"   主页: {config.get('homepage', 'N/A')}")
+
     print(f"\n   工具列表:")
     for tool in config.get('tools', []):
         print(f"     - {tool['name']}: {tool['description']}")
-    
-    # 显示环境变量要求
+
     env = config.get('env', {})
     if env:
         print(f"\n   环境变量要求:")
         for var_name, var_config in env.items():
             required = "必需" if var_config.get('required') else "可选"
             print(f"     - {var_name}: {var_config.get('description', '')} ({required})")
-    
-    # 显示可配置项
+
     configurable = config.get('configurable', {})
     if configurable:
         print(f"\n   可配置项:")
@@ -279,60 +288,58 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 示例:
-  python install.py                    # 安装所有MCP
+  python install.py                    # 安装所有MCP到所有客户端
   python install.py cloakbrowser       # 安装CloakBrowser
   python install.py --list             # 列出所有可用MCP
   python install.py --info cloakbrowser # 查看MCP详情
-  python install.py --client cursor    # 安装到Cursor
+  python install.py --client cursor    # 仅安装到Cursor
+  python install.py --client all       # 安装到所有客户端（默认）
         """
     )
-    
+
     parser.add_argument(
         "mcp",
         nargs="?",
         help="要安装的MCP名称（不指定则安装全部）"
     )
-    
+
     parser.add_argument(
         "--list", "-l",
         action="store_true",
         help="列出所有可用的MCP"
     )
-    
+
     parser.add_argument(
         "--info", "-i",
         metavar="NAME",
         help="显示指定MCP的详细信息"
     )
-    
+
     parser.add_argument(
         "--client", "-c",
-        default="claude",
-        choices=["claude", "cursor", "windsurf"],
-        help="目标客户端（默认: claude）"
+        default="all",
+        choices=["all", "claude", "cursor", "windsurf", "trae", "vscode"],
+        help="目标客户端（默认: all）"
     )
-    
+
     args = parser.parse_args()
-    
-    # 显示列表
+
     if args.list:
         available = list_available_mcps()
         print("\n📦 可用的MCP:")
         for name in available:
             config = load_mcp_config(name)
-            display_name = config.get('displayName', name) if config else name
-            desc = config.get('description', '') if config else ''
+            display_name = config.get("displayName", name) if config else name
+            desc = config.get("description", "") if config else ''
             print(f"  - {name}: {display_name}")
             if desc:
                 print(f"    {desc}")
         return
-    
-    # 显示详情
+
     if args.info:
         show_mcp_info(args.info)
         return
-    
-    # 安装MCP
+
     if args.mcp:
         install_mcp(args.mcp, args.client)
     else:
