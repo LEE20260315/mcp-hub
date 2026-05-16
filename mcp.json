@@ -104,6 +104,16 @@
         "@playwright/mcp"
       ],
       "env": {}
+    },
+    "OpenHuman": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "github:LEE20260315/openhuman-mcp-server"
+      ],
+      "env": {
+        "OPENHUMAN_JWT_TOKEN": "${OPENHUMAN_JWT_TOKEN}"
+      }
     }
   }
 }
