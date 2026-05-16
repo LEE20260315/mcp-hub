@@ -1,6 +1,6 @@
 #!/bin/bash
 # MCP Hub - 一键安装脚本 (macOS/Linux)
-# 支持: Claude Desktop / Cursor / VS Code / Windsurf
+# 支持: Claude Desktop / Cursor / VS Code / Windsurf / Trae
 
 set -e
 
@@ -9,6 +9,7 @@ CONFIG_FILE="$SCRIPT_DIR/mcp.json"
 CLIENT="${1:-all}"
 LARK_APP_ID="${2:-}"
 LARK_APP_SECRET="${3:-}"
+OPENHUMAN_JWT_TOKEN="${4:-}"
 
 # 颜色
 RED='\033[0;31m'
@@ -50,11 +51,18 @@ else
     echo -e "  ${YELLOW}[INFO]${NC} Lark 凭证未提供，保留占位符"
 fi
 
+if [ -n "$OPENHUMAN_JWT_TOKEN" ]; then
+    CONFIG_JSON=$(echo "$CONFIG_JSON" | sed "s/\${OPENHUMAN_JWT_TOKEN}/$OPENHUMAN_JWT_TOKEN/g")
+    echo -e "  ${GREEN}[OK]${NC} OpenHuman 凭证已配置"
+else
+    echo -e "  ${YELLOW}[INFO]${NC} OpenHuman 凭证未提供，保留占位符"
+fi
+
 # 安装函数
 install_config() {
     local target_path="$1"
     local client_name="$2"
-    
+
     mkdir -p "$(dirname "$target_path")"
     echo "$CONFIG_JSON" > "$target_path"
     echo -e "  ${GREEN}[OK]${NC} $client_name -> $target_path"
@@ -84,6 +92,14 @@ if [ "$CLIENT" = "all" ] || [ "$CLIENT" = "windsurf" ]; then
     install_config "$HOME/.windsurf/mcp.json" "Windsurf"
 fi
 
+if [ "$CLIENT" = "all" ] || [ "$CLIENT" = "trae" ]; then
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        install_config "$HOME/Library/Application Support/Trae CN/User/mcp.json" "Trae IDE"
+    else
+        install_config "$HOME/.config/Trae CN/User/mcp.json" "Trae IDE"
+    fi
+fi
+
 # 完成
 echo ""
 echo -e "${GREEN}[4/4] 安装完成!${NC}"
@@ -101,5 +117,6 @@ echo "  9. Excel               - Excel 文件处理"
 echo "  10. Chrome DevTools    - Chrome 开发者工具"
 echo "  11. 发现报告            - 发现报告"
 echo "  12. Playwright         - 浏览器自动化测试"
+echo "  13. OpenHuman           - 个人AI记忆与集成"
 echo ""
 echo -e "${GREEN}重启你的 AI Agent 客户端即可使用!${NC}"
