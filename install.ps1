@@ -1,5 +1,5 @@
 # MCP Hub - 一键安装脚本 (Windows PowerShell)
-# 支持: Trae / Claude Desktop / Cursor / VS Code / Windsurf
+# 支持: Trae / Claude Desktop / Cursor / VS Code / Windsurf / Hermes Agent
 
 param(
     [string]$Client = "all",
@@ -80,6 +80,118 @@ function Install-McpConfig {
     Write-Host "  [OK] $ClientName -> $TargetPath" -ForegroundColor Green
 }
 
+function Install-HermesConfig {
+    param([string]$TargetPath, [string]$ClientName)
+
+    $TargetDir = Split-Path -Parent $TargetPath
+    if (-not (Test-Path $TargetDir)) {
+        New-Item -ItemType Directory -Path $TargetDir -Force | Out-Null
+    }
+
+    $tempJsonFile = [System.IO.Path]::GetTempFileName()
+    try {
+        $configJson | Set-Content -Path $tempJsonFile -Encoding UTF8 -Force
+
+        $nodeScript = @'
+const fs = require('fs');
+
+const jsonFilePath = process.argv[2];
+const targetPath = process.argv[3];
+
+const configJson = fs.readFileSync(jsonFilePath, 'utf8');
+const config = JSON.parse(configJson);
+const mcpServers = config.mcpServers || {};
+
+function buildYamlFromMcpServers(servers) {
+    let lines = ['mcp_servers:'];
+    const serverNames = Object.keys(servers);
+    for (const name of serverNames) {
+        const server = servers[name];
+        lines.push('  ' + name + ':');
+        if (server.command) {
+            lines.push('    command: "' + server.command + '"');
+        }
+        if (server.args && server.args.length > 0) {
+            const argsStr = server.args.map(a => '"' + a + '"').join(', ');
+            lines.push('    args: [' + argsStr + ']');
+        }
+        if (server.env && Object.keys(server.env).length > 0) {
+            lines.push('    env:');
+            for (const [key, value] of Object.entries(server.env)) {
+                lines.push('      ' + key + ': "' + value + '"');
+            }
+        }
+    }
+    return lines.join('\n');
+}
+
+let existingContent = '';
+if (fs.existsSync(targetPath)) {
+    existingContent = fs.readFileSync(targetPath, 'utf8');
+}
+
+let result = '';
+
+if (existingContent.trim()) {
+    const existingLines = existingContent.split('\n');
+    let inMcpServers = false;
+    let mcpServersIndent = -1;
+    const preservedLines = [];
+
+    for (let i = 0; i < existingLines.length; i++) {
+        const line = existingLines[i];
+        const trimmed = line.trimStart();
+        const indent = line.length - trimmed.length;
+
+        if (!inMcpServers && (trimmed === 'mcp_servers:' || trimmed.startsWith('mcp_servers:'))) {
+            inMcpServers = true;
+            mcpServersIndent = indent;
+            continue;
+        }
+
+        if (inMcpServers) {
+            if (trimmed === '' || indent <= mcpServersIndent) {
+                inMcpServers = false;
+                if (trimmed !== '') {
+                    preservedLines.push(line);
+                }
+            }
+            continue;
+        }
+
+        preservedLines.push(line);
+    }
+
+    const newMcpServersYaml = buildYamlFromMcpServers(mcpServers);
+    const preserved = preservedLines.join('\n').trimEnd();
+
+    if (preserved) {
+        result = preserved + '\n\n' + newMcpServersYaml + '\n';
+    } else {
+        result = newMcpServersYaml + '\n';
+    }
+} else {
+    result = buildYamlFromMcpServers(mcpServers) + '\n';
+}
+
+fs.writeFileSync(targetPath, result, 'utf8');
+'@
+
+        $result = node -e $nodeScript -- $tempJsonFile $TargetPath 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "  [OK] $ClientName -> $TargetPath" -ForegroundColor Green
+        }
+        else {
+            Write-Host "  [ERROR] $ClientName 安装失败: $result" -ForegroundColor Red
+        }
+    }
+    finally {
+        if (Test-Path $tempJsonFile) {
+            Remove-Item -Path $tempJsonFile -Force | Out-Null
+        }
+    }
+}
+
 $installAll = $Client -eq "all"
 
 if ($installAll -or $Client -eq "trae") {
@@ -100,6 +212,10 @@ if ($installAll -or $Client -eq "vscode") {
 
 if ($installAll -or $Client -eq "windsurf") {
     Install-McpConfig -TargetPath "$env:USERPROFILE\.windsurf\mcp.json" -ClientName "Windsurf"
+}
+
+if ($installAll -or $Client -eq "hermes") {
+    Install-HermesConfig -TargetPath "$env:USERPROFILE\.hermes\config.yaml" -ClientName "Hermes Agent"
 }
 
 # 完成
