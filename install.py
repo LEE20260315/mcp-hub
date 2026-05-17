@@ -9,6 +9,7 @@ MCP Hub 一键安装脚本
     python install.py --list             # 列出可用MCP
     python install.py --client all       # 安装到所有客户端（默认）
     python install.py --client claude    # 指定客户端配置
+    python install.py --client hermes    # 安装到Hermes Agent（YAML格式）
 
 """
 
@@ -21,12 +22,20 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional
 
+# 尝试导入 PyYAML，用于 Hermes Agent 的 YAML 配置
+try:
+    import yaml
+    HAS_YAML = True
+except ImportError:
+    HAS_YAML = False
+
 
 # MCP Hub 配置目录
 HUB_DIR = Path(__file__).parent
 CONFIGS_DIR = HUB_DIR / "configs"
 
 # 支持的客户端配置路径
+# 注意: hermes 使用 YAML 格式，与其他 JSON 格式客户端不同，需要特殊处理
 CLIENT_CONFIGS = {
     "claude": {
         "darwin": Path.home() / "Library/Application Support/Claude/claude_desktop_config.json",
@@ -52,6 +61,11 @@ CLIENT_CONFIGS = {
         "darwin": Path.home() / "Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json",
         "win32": Path(os.environ.get("APPDATA", "")) / "Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json",
         "linux": Path.home() / ".config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json",
+    },
+    "hermes": {
+        "darwin": Path.home() / ".hermes/config.yaml",
+        "win32": Path.home() / ".hermes/config.yaml",
+        "linux": Path.home() / ".hermes/config.yaml",
     },
 }
 
@@ -185,6 +199,114 @@ def save_client_config(client: str, config: Dict) -> bool:
         return False
 
 
+# ==================== Hermes Agent YAML 配置处理 ====================
+
+
+def load_hermes_config() -> Dict:
+    """读取 Hermes Agent 的 YAML 配置文件
+
+    Returns:
+        解析后的配置字典，如果文件不存在或读取失败则返回空字典
+    """
+    if not HAS_YAML:
+        return {}
+
+    config_path = get_client_config_path("hermes")
+    if not config_path:
+        return {}
+
+    if config_path.exists():
+        try:
+            with open(config_path, "r", encoding="utf-8") as f:
+                return yaml.safe_load(f) or {}
+        except (yaml.YAMLError, IOError):
+            print(f"  ⚠️  读取 Hermes 配置文件失败: {config_path}")
+            return {}
+    return {}
+
+
+def save_hermes_config(config: Dict) -> bool:
+    """保存 Hermes Agent 的 YAML 配置文件
+
+    将配置字典写入 ~/.hermes/config.yaml，保留文件中已有的所有其他设置。
+
+    Args:
+        config: 完整的配置字典（包含 mcp_servers 及其他所有设置）
+
+    Returns:
+        保存是否成功
+    """
+    if not HAS_YAML:
+        return False
+
+    config_path = get_client_config_path("hermes")
+    if not config_path:
+        return False
+
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        with open(config_path, "w", encoding="utf-8") as f:
+            yaml.dump(config, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
+        return True
+    except IOError as e:
+        print(f"  ❌ 保存 Hermes 配置失败: {e}")
+        return False
+
+
+def install_mcp_to_hermes(name: str, server_config: Dict) -> bool:
+    """将单个 MCP 服务器配置合并到 Hermes Agent 的 config.yaml 中
+
+    Hermes 使用 YAML 格式，MCP 服务器配置在 mcp_servers 键下。
+    此函数会：
+    1. 读取现有的 config.yaml（如果存在）
+    2. 将新的 MCP 服务器配置合并到 mcp_servers 中
+    3. 保留所有其他现有设置（model、terminal、TTS 等）
+    4. 如果文件不存在则创建
+
+    Args:
+        name: MCP 服务器名称（用作 mcp_servers 下的键）
+        server_config: MCP 服务器配置字典，包含 command、args、env 等字段
+
+    Returns:
+        安装是否成功
+    """
+    if not HAS_YAML:
+        print(f"  ⚠️  跳过 Hermes Agent: 未安装 PyYAML")
+        print(f"     请运行: pip install pyyaml")
+        return False
+
+    # 读取现有配置（保留所有非 MCP 设置）
+    hermes_config = load_hermes_config()
+
+    # 确保 mcp_servers 键存在
+    if "mcp_servers" not in hermes_config:
+        hermes_config["mcp_servers"] = {}
+
+    # 转换 JSON 格式的 server_config 为 Hermes YAML 格式
+    hermes_server = {}
+    if "command" in server_config:
+        hermes_server["command"] = server_config["command"]
+    if "args" in server_config:
+        hermes_server["args"] = server_config["args"]
+    if "env" in server_config:
+        hermes_server["env"] = server_config["env"]
+
+    # 合并到配置中（同名服务器会被覆盖）
+    hermes_config["mcp_servers"][name] = hermes_server
+
+    # 保存完整配置
+    if save_hermes_config(hermes_config):
+        print(f"  ✅ {name} -> hermes")
+        return True
+    else:
+        print(f"  ❌ {name} -> hermes 失败")
+        return False
+
+
+# ==================== 通用安装逻辑 ====================
+
+
 def install_mcp(name: str, client: str = "all", custom_args: Dict = None) -> bool:
     """安装单个MCP"""
     print(f"\n🔧 安装 MCP: {name}")
@@ -209,6 +331,13 @@ def install_mcp(name: str, client: str = "all", custom_args: Dict = None) -> boo
 
     success = False
     for target_client in clients_to_install:
+        # Hermes 使用特殊的 YAML 合并逻辑
+        if target_client == "hermes":
+            if install_mcp_to_hermes(name, server_config):
+                success = True
+            continue
+
+        # 其他客户端使用标准 JSON 逻辑
         client_config = load_client_config(target_client)
 
         if "mcpServers" not in client_config:
@@ -227,7 +356,6 @@ def install_mcp(name: str, client: str = "all", custom_args: Dict = None) -> boo
 def install_all(client: str = "all") -> None:
     """安装所有可用的MCP"""
     available = list_available_mcps()
-
     if not available:
         print("❌ 没有找到可用的MCP配置")
         return
@@ -237,6 +365,12 @@ def install_all(client: str = "all") -> None:
     else:
         print(f"\n🚀 开始安装 {len(available)} 个MCP 到 {client}")
     print(f"   可用MCP: {', '.join(available)}")
+
+    # 如果目标包含 hermes 且没有 PyYAML，提前警告
+    if (client == "all" or client == "hermes") and not HAS_YAML:
+        print(f"\n  ⚠️  Hermes Agent 需要 PyYAML 支持")
+        print(f"     请先运行: pip install pyyaml")
+        print(f"     Hermes 配置将被跳过\n")
 
     success_count = 0
     for mcp_name in available:
@@ -293,6 +427,7 @@ def main():
   python install.py --list             # 列出所有可用MCP
   python install.py --info cloakbrowser # 查看MCP详情
   python install.py --client cursor    # 仅安装到Cursor
+  python install.py --client hermes    # 仅安装到Hermes Agent
   python install.py --client all       # 安装到所有客户端（默认）
         """
     )
@@ -318,7 +453,7 @@ def main():
     parser.add_argument(
         "--client", "-c",
         default="all",
-        choices=["all", "claude", "cursor", "windsurf", "trae", "vscode"],
+        choices=["all", "claude", "cursor", "windsurf", "trae", "vscode", "hermes"],
         help="目标客户端（默认: all）"
     )
 
