@@ -1,6 +1,6 @@
 #!/bin/bash
 # MCP Hub - 一键安装脚本 (macOS/Linux)
-# 支持: Claude Desktop / Cursor / VS Code / Windsurf / Trae
+# 支持: Claude Desktop / Cursor / VS Code / Windsurf / Trae / Hermes Agent
 
 set -e
 
@@ -68,6 +68,136 @@ install_config() {
     echo -e "  ${GREEN}[OK]${NC} $client_name -> $target_path"
 }
 
+# Hermes Agent YAML 安装函数
+install_hermes_config() {
+    local target_path="$HOME/.hermes/config.yaml"
+    local env_path="$HOME/.hermes/.env"
+    local client_name="Hermes Agent"
+
+    mkdir -p "$(dirname "$target_path")"
+
+    # 使用 Node.js 将 JSON mcp.json 转换为 YAML mcp_servers 格式
+    local mcp_servers_yaml
+    mcp_servers_yaml=$(node -e "
+const config = JSON.parse(process.argv[1]);
+const servers = config.mcpServers || {};
+
+function yamlValue(val, indent) {
+    if (val === null || val === undefined) return 'null';
+    if (typeof val === 'boolean') return val ? 'true' : 'false';
+    if (typeof val === 'number') return String(val);
+    if (typeof val === 'string') {
+        if (/[:#{}\[\],&*?|>!\"'%\`@\\\\]/.test(val) || val === '' || val === 'true' || val === 'false' || val === 'null' || /^\d/.test(val)) {
+            return '\"' + val.replace(/\\\\/g, '\\\\\\\\').replace(/\"/g, '\\\\\"') + '\"';
+        }
+        return val;
+    }
+    if (Array.isArray(val)) {
+        if (val.length === 0) return '[]';
+        const items = val.map(item => {
+            const v = yamlValue(item, indent + 2);
+            return ' '.repeat(indent + 2) + '- ' + v.trimStart();
+        }).join('\n');
+        return '\n' + items;
+    }
+    if (typeof val === 'object') {
+        const keys = Object.keys(val);
+        if (keys.length === 0) return '{}';
+        const entries = keys.map(key => {
+            const v = yamlValue(val[key], indent + 2);
+            return ' '.repeat(indent + 2) + key + ': ' + v;
+        }).join('\n');
+        return '\n' + entries;
+    }
+    return String(val);
+}
+
+let output = 'mcp_servers:\n';
+for (const [name, server] of Object.entries(servers)) {
+    output += '  ' + name + ':\n';
+    if (server.command) {
+        output += '    command: ' + yamlValue(server.command, 6) + '\n';
+    }
+    if (server.args && server.args.length > 0) {
+        output += '    args:' + yamlValue(server.args, 6) + '\n';
+    }
+    if (server.env && typeof server.env === 'object' && Object.keys(server.env).length > 0) {
+        output += '    env:' + yamlValue(server.env, 6) + '\n';
+    }
+}
+process.stdout.write(output);
+" "$CONFIG_JSON")
+
+    # 检查是否已有 config.yaml，如有则合并
+    if [ -f "$target_path" ]; then
+        echo -e "  ${YELLOW}[INFO]${NC} 检测到已有 Hermes 配置，执行合并..."
+
+        local merged_yaml
+        merged_yaml=$(node -e "
+const fs = require('fs');
+const targetPath = process.argv[1];
+const newMcpBlock = process.argv[2];
+
+const existing = fs.readFileSync(targetPath, 'utf-8');
+
+const mcpMarker = /^mcp_servers:\s*$/m;
+const lines = existing.split('\n');
+
+let beforeMcp = [];
+let afterMcp = [];
+let inMcpBlock = false;
+let foundMcp = false;
+
+for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (mcpMarker.test(line)) {
+        foundMcp = true;
+        inMcpBlock = true;
+        continue;
+    }
+    if (inMcpBlock) {
+        if (line.match(/^  \S/) || line.trim() === '') {
+            if (line.trim() === '' && i + 1 < lines.length && !lines[i + 1].match(/^  \S/)) {
+                inMcpBlock = false;
+                afterMcp.push(line);
+            }
+            continue;
+        } else {
+            inMcpBlock = false;
+            afterMcp.push(line);
+        }
+    } else {
+        beforeMcp.push(line);
+    }
+}
+
+let result = '';
+if (foundMcp) {
+    while (beforeMcp.length > 0 && beforeMcp[beforeMcp.length - 1].trim() === '') {
+        beforeMcp.pop();
+    }
+    result = beforeMcp.join('\n') + '\n\n' + newMcpBlock.trimEnd() + '\n';
+    while (afterMcp.length > 0 && afterMcp[0].trim() === '') {
+        afterMcp.shift();
+    }
+    if (afterMcp.length > 0) {
+        result += '\n' + afterMcp.join('\n');
+    }
+} else {
+    result = existing.trimEnd() + '\n\n' + newMcpBlock.trimEnd() + '\n';
+}
+
+process.stdout.write(result);
+" "$target_path" "$mcp_servers_yaml")
+
+        echo "$merged_yaml" > "$target_path"
+        echo -e "  ${GREEN}[OK]${NC} $client_name -> $target_path (已合并)"
+    else
+        echo "$mcp_servers_yaml" > "$target_path"
+        echo -e "  ${GREEN}[OK]${NC} $client_name -> $target_path (新建)"
+    fi
+}
+
 # 安装到各客户端
 echo ""
 echo -e "${YELLOW}[3/4] 安装到 AI Agent 客户端...${NC}"
@@ -98,6 +228,10 @@ if [ "$CLIENT" = "all" ] || [ "$CLIENT" = "trae" ]; then
     else
         install_config "$HOME/.config/Trae CN/User/mcp.json" "Trae IDE"
     fi
+fi
+
+if [ "$CLIENT" = "all" ] || [ "$CLIENT" = "hermes" ]; then
+    install_hermes_config
 fi
 
 # 完成
