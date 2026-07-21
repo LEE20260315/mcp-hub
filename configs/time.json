@@ -1,0 +1,37 @@
+{
+  "name": "time",
+  "displayName": "时间与时区",
+  "description": "获取当前时间、时区转换、日期计算等时间工具",
+  "version": "1.0.0",
+  "author": "ModelContextProtocol",
+  "homepage": "https://github.com/modelcontextprotocol/servers",
+  "license": "MIT",
+  "install": {
+    "type": "npx",
+    "package": "@mcp/time"
+  },
+  "server": {
+    "type": "stdio",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@mcp/time"
+    ]
+  },
+  "tools": [
+    {
+      "name": "get_current_time",
+      "description": "获取指定时区的当前时间"
+    },
+    {
+      "name": "convert_timezone",
+      "description": "时区转换"
+    },
+    {
+      "name": "date_calculation",
+      "description": "日期计算（加减天数等）"
+    }
+  ],
+  "env": {},
+  "configurable": {}
+}

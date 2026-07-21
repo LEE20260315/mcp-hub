@@ -1,0 +1,47 @@
+{
+  "name": "sqlite",
+  "displayName": "SQLite 数据库",
+  "description": "SQLite 数据库操作工具，支持查询、建表、数据导入导出",
+  "version": "1.0.0",
+  "author": "northwood",
+  "homepage": "https://github.com/northwood/sqlite-mcp",
+  "license": "MIT",
+  "install": {
+    "type": "npx",
+    "package": "@northwood/sqlite-mcp"
+  },
+  "server": {
+    "type": "stdio",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@northwood/sqlite-mcp"
+    ]
+  },
+  "tools": [
+    {
+      "name": "query",
+      "description": "执行 SQL 查询"
+    },
+    {
+      "name": "execute",
+      "description": "执行 SQL 语句（INSERT/UPDATE/DELETE）"
+    },
+    {
+      "name": "list_tables",
+      "description": "列出所有表"
+    },
+    {
+      "name": "describe_table",
+      "description": "查看表结构"
+    }
+  ],
+  "env": {},
+  "configurable": {
+    "database_path": {
+      "type": "string",
+      "description": "SQLite 数据库文件路径",
+      "required": true
+    }
+  }
+}

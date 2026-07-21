@@ -10,6 +10,7 @@ CLIENT="${1:-all}"
 LARK_APP_ID="${2:-}"
 LARK_APP_SECRET="${3:-}"
 OPENHUMAN_JWT_TOKEN="${4:-}"
+OBSIDIAN_VAULT_PATH="${5:-}"
 
 # 颜色
 RED='\033[0;31m'
@@ -44,6 +45,7 @@ echo -e "${YELLOW}[2/4] 读取 MCP 配置...${NC}"
 
 CONFIG_JSON=$(cat "$CONFIG_FILE")
 
+# 替换凭证占位符
 if [ -n "$LARK_APP_ID" ] && [ -n "$LARK_APP_SECRET" ]; then
     CONFIG_JSON=$(echo "$CONFIG_JSON" | sed "s/\${LARK_APP_ID}/$LARK_APP_ID/g" | sed "s/\${LARK_APP_SECRET}/$LARK_APP_SECRET/g")
     echo -e "  ${GREEN}[OK]${NC} Lark 凭证已配置"
@@ -56,6 +58,13 @@ if [ -n "$OPENHUMAN_JWT_TOKEN" ]; then
     echo -e "  ${GREEN}[OK]${NC} OpenHuman 凭证已配置"
 else
     echo -e "  ${YELLOW}[INFO]${NC} OpenHuman 凭证未提供，保留占位符"
+fi
+
+if [ -n "$OBSIDIAN_VAULT_PATH" ]; then
+    CONFIG_JSON=$(echo "$CONFIG_JSON" | sed "s|\${OBSIDIAN_VAULT_PATH}|$OBSIDIAN_VAULT_PATH|g")
+    echo -e "  ${GREEN}[OK]${NC} Obsidian 知识库路径已配置"
+else
+    echo -e "  ${YELLOW}[INFO]${NC} Obsidian 知识库路径未提供，保留占位符"
 fi
 
 # 安装函数
@@ -238,19 +247,22 @@ fi
 echo ""
 echo -e "${GREEN}[4/4] 安装完成!${NC}"
 echo ""
-echo -e "${CYAN}已安装的 MCP 服务器:${NC}"
-echo "  1. Filesystem          - 文件系统操作"
-echo "  2. Desktop Commander   - 桌面终端控制"
-echo "  3. Sequential Thinking - 链式思考推理"
-echo "  4. Memory              - 持久化记忆"
-echo "  5. context7            - 上下文增强"
-echo "  6. Puppeteer           - 浏览器自动化"
-echo "  7. DuckDuckGo Search   - 网络搜索"
-echo "  8. lark-mcp            - 飞书集成"
-echo "  9. Excel               - Excel 文件处理"
-echo "  10. Chrome DevTools    - Chrome 开发者工具"
-echo "  11. 发现报告            - 发现报告"
-echo "  12. Playwright         - 浏览器自动化测试"
+echo -e "${CYAN}已安装的 MCP 服务器 (16):${NC}"
+echo "  1.  Filesystem          - 文件系统操作"
+echo "  2.  Desktop Commander   - 桌面终端控制"
+echo "  3.  Sequential Thinking - 链式思考推理"
+echo "  4.  Memory              - 持久化记忆"
+echo "  5.  context7            - 上下文增强"
+echo "  6.  Puppeteer           - 浏览器自动化"
+echo "  7.  DuckDuckGo Search   - 网络搜索"
+echo "  8.  lark-mcp            - 飞书集成"
+echo "  9.  Excel               - Excel 文件处理"
+echo "  10. Chrome DevTools     - Chrome 开发者工具"
+echo "  11. 发现报告             - 发现报告"
+echo "  12. Playwright          - 浏览器自动化测试"
 echo "  13. OpenHuman           - 个人AI记忆与集成"
+echo "  14. Obsidian            - Obsidian 知识库读写"
+echo "  15. SQLite              - SQLite 数据库操作"
+echo "  16. Time                - 时间与时区工具"
 echo ""
 echo -e "${GREEN}重启你的 AI Agent 客户端即可使用!${NC}"

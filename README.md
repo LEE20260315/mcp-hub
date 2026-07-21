@@ -7,7 +7,7 @@
 <br>
 
 ![](https://img.shields.io/badge/license-MIT-141414?style=flat-square)
-![](https://img.shields.io/badge/servers-13-141414?style=flat-square)
+![](https://img.shields.io/badge/servers-16-141414?style=flat-square)
 ![](https://img.shields.io/badge/clients-6-141414?style=flat-square)
 ![](https://img.shields.io/github/stars/LEE20260315/mcp-hub?style=flat-square&color=9C2A2A&label=stars)
 
@@ -25,11 +25,11 @@
 
 ## 序 <a id="序"></a>
 
-凡治学者，必有文房；凡馭 Agent 者，亦當備其器。
+凡治學者，必有文房；凡馭 Agent 者，亦當備其器。
 
-本函收 MCP 服務器十三，配通用 `mcp.json` 一卷、安裝腳本三紙，
+本函收 MCP 服務器十六，配通用 `mcp.json` 一卷、安裝腳本三紙，
 俾 Trae、Claude Desktop、Cursor、VS Code、Windsurf、Hermes Agent 六客，
-一令之間，文件可讀、終端可驅、網頁可閱、表簿可理、檢索可成、記憶可喚。
+一令之間，文件可讀、終端可驅、網頁可閱、表簿可理、筆記可喚、資料可查、時辰可問。
 
 <br>
 
@@ -52,8 +52,17 @@
 | 一一 | 發現報告            | 運筆成章，條陳利弊，擲地有聲     | uvx  |
 | 一二 | Playwright          | 跨瀏覽器試，百戰不殆，穩如磐石   | Node |
 | 一三 | OpenHuman           | 萬象歸一，記憶成樹，語義可索     | Node |
+| 一四 | Obsidian            | 拾筆記之，靈光一現，過目不忘     | Node |
+| 一五 | SQLite              | 縱橫數據，輕取輕予，信手拈來     | Node |
+| 一六 | Time                | 知時知刻，東西南北，分秒不差     | Node |
 
 <sub>※ 一三號 OpenHuman 乃開源個人 AI 超級智能 [OpenHuman](https://github.com/tinyhumansai/openhuman) 之 MCP 橋接，可令 Agent 檢索用戶之記憶樹、已連接之百餘集成服務（Gmail、Slack、Notion 等），以自然語言查詢個人知識庫。</sub>
+
+<sub>※ 一四號 Obsidian 可令 Agent 讀寫 [Obsidian](https://obsidian.md) 知識庫筆記，須設 `OBSIDIAN_VAULT_PATH` 環境變量指向知識庫目錄。</sub>
+
+<sub>※ 一五號 SQLite 提供輕量數據庫查詢與操作，適於數據分析、量化回測等場景。</sub>
+
+<sub>※ 一六號 Time 提供時區轉換與日期計算，適於跨時區排程、定時任務等場景。</sub>
 
 <br>
 
@@ -97,6 +106,9 @@ LARK_APP_SECRET=xxxxxxxx
 
 # OpenHuman（可选，使用一三號器時需要）
 OPENHUMAN_JWT_TOKEN=xxxxxxxx
+
+# Obsidian（可选，使用一四號器時需要）
+OBSIDIAN_VAULT_PATH=C:\Users\xxx\Documents\Obsidian Vault
 ```
 
 <sub>※ `.env` 已入 `.gitignore`，密鑰不可付梓。</sub>
@@ -107,12 +119,12 @@ OPENHUMAN_JWT_TOKEN=xxxxxxxx
 
 ```bash
 # macOS / Linux —— 傳入環境變量
-curl -fsSL https://raw.githubusercontent.com/LEE20260315/mcp-hub/main/install.sh | bash -s -- "" "LARK_APP_ID" "LARK_APP_SECRET" "OPENHUMAN_JWT_TOKEN"
+curl -fsSL https://raw.githubusercontent.com/LEE20260315/mcp-hub/main/install.sh | bash -s -- "" "LARK_APP_ID" "LARK_APP_SECRET" "OPENHUMAN_JWT_TOKEN" "OBSIDIAN_VAULT_PATH"
 ```
 
 ```powershell
 # Windows —— 傳入環境變量
-iwr -useb https://raw.githubusercontent.com/LEE20260315/mcp-hub/main/install.ps1 | iex; .\install.ps1 -LarkAppId "xxx" -LarkAppSecret "xxx" -OpenHumanJwtToken "xxx"
+iwr -useb https://raw.githubusercontent.com/LEE20260315/mcp-hub/main/install.ps1 | iex; .\install.ps1 -LarkAppId "xxx" -LarkAppSecret "xxx" -OpenHumanJwtToken "xxx" -ObsidianVaultPath "xxx"
 ```
 
 <br>
@@ -121,7 +133,7 @@ iwr -useb https://raw.githubusercontent.com/LEE20260315/mcp-hub/main/install.ps1
 
 | 依 | 所需之器 | 取之之法 |
 |---|---|---|
-| Node.js ≥ 18 | Filesystem · Commander · Thinking · Memory · Puppeteer · Lark · Excel · Chrome · Playwright · OpenHuman |  |
+| Node.js ≥ 18 | Filesystem · Commander · Thinking · Memory · Puppeteer · Lark · Excel · Chrome · Playwright · OpenHuman · Obsidian · SQLite · Time |  |
 | Python + uv  | DuckDuckGo · 發現報告 | `pip install uv` |
 | Python + PyYAML | Hermes Agent (install.py) | `pip install pyyaml` |
 | Chrome       | Puppeteer · Chrome DevTools |  |
@@ -169,6 +181,26 @@ iwr -useb https://raw.githubusercontent.com/LEE20260315/mcp-hub/main/install.ps1
 <br><br>
 
 此器可令 Agent 檢索用戶之記憶樹（Memory Tree）、查詢已連接之集成服務（Gmail、Slack、GitHub、Notion 等百餘種）、以自然語言搜尋個人知識庫。詳見 <a href="https://github.com/LEE20260315/openhuman-mcp-server">openhuman-mcp-server</a>。
+</details>
+
+<details>
+<summary>Obsidian 一四號器何以配？</summary>
+<br>
+
+須設 `OBSIDIAN_VAULT_PATH` 環境變量，指向 Obsidian 知識庫的根目錄（如 `C:\Users\xxx\Documents\Obsidian Vault`）。
+<br><br>
+
+此器可令 Agent 讀取、搜索、創建、更新知識庫中的筆記文件，實現知識庫與 AI 的雙向互通。
+</details>
+
+<details>
+<summary>SQLite 一五號器何以用？</summary>
+<br>
+
+運行時須指定數據庫文件路徑，支持標準 SQL 查詢、建表、數據導入導出等操作。
+<br><br>
+
+適於數據分析、量化回測、本地數據管理等場景。
 </details>
 
 <details>

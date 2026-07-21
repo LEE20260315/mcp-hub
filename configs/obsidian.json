@@ -1,0 +1,53 @@
+{
+  "name": "obsidian",
+  "displayName": "Obsidian 知识库",
+  "description": "读写 Obsidian 知识库笔记，连接个人知识管理",
+  "version": "1.0.0",
+  "author": "marcusschiesser",
+  "homepage": "https://github.com/marcusschiesser/obsidian-mcp",
+  "license": "MIT",
+  "install": {
+    "type": "npx",
+    "package": "@marcusschiesser/obsidian-mcp"
+  },
+  "server": {
+    "type": "stdio",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@marcusschiesser/obsidian-mcp"
+    ]
+  },
+  "tools": [
+    {
+      "name": "read_notes",
+      "description": "读取 Obsidian 笔记内容"
+    },
+    {
+      "name": "search_notes",
+      "description": "搜索 Obsidian 笔记"
+    },
+    {
+      "name": "create_note",
+      "description": "创建新笔记"
+    },
+    {
+      "name": "update_note",
+      "description": "更新笔记内容"
+    }
+  ],
+  "env": {
+    "OBSIDIAN_VAULT_PATH": {
+      "type": "string",
+      "description": "Obsidian 知识库路径",
+      "required": true
+    }
+  },
+  "configurable": {
+    "vault_path": {
+      "type": "string",
+      "description": "Obsidian 知识库路径",
+      "required": true
+    }
+  }
+}

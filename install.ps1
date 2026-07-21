@@ -5,7 +5,8 @@ param(
     [string]$Client = "all",
     [string]$LarkAppId = "",
     [string]$LarkAppSecret = "",
-    [string]$OpenHumanJwtToken = ""
+    [string]$OpenHumanJwtToken = "",
+    [string]$ObsidianVaultPath = ""
 )
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -60,6 +61,15 @@ if ($OpenHumanJwtToken) {
 }
 else {
     Write-Host "  [INFO] OpenHuman 凭证未提供，将保留占位符。可通过 -OpenHumanJwtToken 参数配置" -ForegroundColor Yellow
+}
+
+# 替换 Obsidian 环境变量
+if ($ObsidianVaultPath) {
+    $config.mcpServers.'Obsidian'.env.OBSIDIAN_VAULT_PATH = $ObsidianVaultPath
+    Write-Host "  [OK] Obsidian 知识库路径已配置" -ForegroundColor Green
+}
+else {
+    Write-Host "  [INFO] Obsidian 知识库路径未提供，将保留占位符。可通过 -ObsidianVaultPath 参数配置" -ForegroundColor Yellow
 }
 
 $configJson = $config | ConvertTo-Json -Depth 10
@@ -236,5 +246,8 @@ Write-Host "  10. Chrome DevTools    - Chrome 开发者工具"
 Write-Host "  11. 发现报告            - 发现报告"
 Write-Host "  12. Playwright         - 浏览器自动化测试"
 Write-Host "  13. OpenHuman           - 个人AI记忆与集成"
+Write-Host "  14. Obsidian            - Obsidian 知识库读写"
+Write-Host "  15. SQLite              - SQLite 数据库操作"
+Write-Host "  16. Time                - 时间与时区工具"
 Write-Host ""
 Write-Host "重启你的 AI Agent 客户端即可使用!" -ForegroundColor Green
