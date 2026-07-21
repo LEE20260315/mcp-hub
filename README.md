@@ -233,6 +233,30 @@ Hermes Agent 以 YAML 為配置（`~/.hermes/config.yaml`），非 JSON 也。
 
 ---
 
+## 附：Pi 智能体 Skills <a id="pi-skills"></a>
+
+[pi](https://github.com/earendil-works/pi-coding-agent) 乃一轻量编码智能体，其设计理念为**无 MCP**——以 Skills（带 `SKILL.md` 的目录）集成能力，渐进式披露，按需加载，更省上下文。
+
+本函另备 `pi-skills/` 一卷，收 Obsidian、SQLite、Time 三器之 skill，供 pi 用户取用：
+
+```bash
+# 安装到 pi 全局 skills 目录（~/.pi/agent/skills/）
+git clone https://github.com/LEE20260315/mcp-hub.git
+cp -r mcp-hub/pi-skills/* ~/.pi/agent/skills/
+```
+
+| Skill | 用 | 载体 |
+|---|---|---|
+| [obsidian](./pi-skills/obsidian/SKILL.md) | 读写 Obsidian 知识库笔记 | read / write / bash |
+| [sqlite](./pi-skills/sqlite/SKILL.md) | SQLite 数据库查询与操作 | sqlite3 CLI / Node.js |
+| [time](./pi-skills/time/SKILL.md) | 时间查询与时区转换 | date / Node.js |
+
+<sub>※ pi 无需 MCP，内置 `read`/`write`/`bash` 工具配合 skill 指令即可完成操作，极简且省 context。</sub>
+
+<br>
+
+---
+
 <div align="center">
 <img src="https://raw.githubusercontent.com/LEE20260315/mcp-hub/main/docs/assets/seal-xicheng.png" alt="西城閒人" width="64"/>
 <br>
